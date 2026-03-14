@@ -1,0 +1,136 @@
+<!-- frontend/templates/login.html -->
+{% extends "base.html" %} {% block title %}Login — VaultLock{% endblock %} {%
+block content %}
+<div class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+    <!-- Logo / Header -->
+    <div class="text-center mb-8">
+      <div
+        class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 mb-4"
+      >
+        <svg
+          class="w-8 h-8 text-indigo-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-white">VaultLock</h1>
+      <p class="text-gray-400 text-sm mt-1">
+        Enter your master password to unlock
+      </p>
+    </div>
+
+    <!-- Card -->
+    <div
+      class="bg-[#1a1d27] border border-[#2e3350] rounded-2xl p-8 shadow-2xl"
+    >
+      <form method="POST" action="{{ url_for('auth.login') }}">
+        <!-- CSRF token — Flask-WTF injects and validates this automatically -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <!-- Email -->
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-gray-300 mb-2"
+            >Email address</label
+          >
+          <input
+            type="email"
+            name="email"
+            required
+            autocomplete="email"
+            class="w-full px-4 py-3 rounded-xl bg-[#0f1117] border border-[#2e3350] text-gray-100 placeholder-gray-600 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-300 mb-2"
+            >Master password</label
+          >
+          <div class="relative">
+            <input
+              type="password"
+              name="password"
+              id="loginPassword"
+              required
+              autocomplete="current-password"
+              class="w-full px-4 py-3 rounded-xl bg-[#0f1117] border border-[#2e3350] text-gray-100 placeholder-gray-600 text-sm pr-12 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+              placeholder="••••••••"
+            />
+            <!-- Toggle visibility button -->
+            <button
+              type="button"
+              onclick="toggleVisibility('loginPassword', this)"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7
+                     -1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-colors duration-200 text-sm shadow-lg shadow-indigo-600/20"
+        >
+          Unlock Vault
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-500 mt-6">
+        No account?
+        <a
+          href="{{ url_for('auth.register') }}"
+          class="text-indigo-400 hover:text-indigo-300 transition-colors"
+        >
+          Create one
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleVisibility(fieldId, btn) {
+    const field = document.getElementById(fieldId);
+    field.type = field.type === "password" ? "text" : "password";
+  }
+
+  // Auto-dismiss flash messages after 4 seconds
+  setTimeout(() => {
+    document.querySelectorAll(".flash-msg").forEach((el) => {
+      el.style.transition = "opacity .5s";
+      el.style.opacity = "0";
+      setTimeout(() => el.remove(), 500);
+    });
+  }, 4000);
+</script>
+{% endblock %}

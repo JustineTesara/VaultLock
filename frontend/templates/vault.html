@@ -1,0 +1,503 @@
+<!-- frontend/templates/vault.html -->
+{% extends "base.html" %} {% block title %}Vault — VaultLock{% endblock %} {%
+block content %}
+<div class="flex h-screen overflow-hidden" style="background: #0f1117">
+  <!-- ─── SIDEBAR ─────────────────────────────────────────── -->
+  <aside
+    class="w-52 flex-shrink-0 flex flex-col"
+    style="background: #13151f; border-right: 1px solid #1e2235"
+  >
+    <!-- Logo -->
+    <div class="px-4 py-5" style="border-bottom: 1px solid #1e2235">
+      <div class="flex items-center gap-2">
+        <div
+          class="flex items-center justify-center w-8 h-8 rounded-lg"
+          style="background: #6c63ff18; border: 1px solid #6c63ff33"
+        >
+          <svg
+            class="w-4 h-4"
+            style="color: #a09bff"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+        </div>
+        <span
+          class="font-bold text-sm"
+          style="color: #e0e0f0; letter-spacing: 0.02em"
+          >VaultLock</span
+        >
+      </div>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="flex-1 px-2 py-4 space-y-1">
+      <a
+        href="{{ url_for('vault.vault_home') }}"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+        style="background: #6c63ff18; color: #a09bff"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 6h16M4 10h16M4 14h16M4 18h16"
+          />
+        </svg>
+        All Passwords
+      </a>
+
+      <!-- Add New — opens modal (wired in Step 7B) -->
+      <button
+        onclick="openAddModal()"
+        class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+        style="color:#6b7299; hover:color:#a09bff"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Add New
+      </button>
+
+      <!-- Generator — opens modal (wired in Step 7C) -->
+      <button
+        onclick="openGeneratorModal()"
+        class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+        style="color: #6b7299"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+        Generator
+      </button>
+    </nav>
+
+    <!-- User info + logout at bottom -->
+    <div class="px-2 py-4" style="border-top: 1px solid #1e2235">
+      <div class="flex items-center gap-2 px-3 py-2 mb-1">
+        <div
+          class="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold flex-shrink-0"
+          style="background: #6c63ff22; color: #a09bff"
+        >
+          {{ current_user.email[0].upper() }}
+        </div>
+        <span class="text-xs truncate" style="color: #4a5080; max-width: 110px">
+          {{ current_user.email }}
+        </span>
+      </div>
+      <a
+        href="{{ url_for('auth.logout') }}"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+        style="color: #e05555"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+          />
+        </svg>
+        Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─────────────────────────────────────── -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top bar -->
+    <header
+      class="flex items-center gap-3 px-6 py-4 flex-shrink-0"
+      style="border-bottom: 1px solid #1a1d2e"
+    >
+      <!-- Search bar -->
+      <div
+        class="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl text-sm"
+        style="background: #1a1d27; border: 1px solid #2a2d42"
+      >
+        <svg
+          class="w-4 h-4 flex-shrink-0"
+          style="color: #4a5080"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search passwords..."
+          oninput="filterVault(this.value)"
+          class="bg-transparent flex-1 outline-none text-sm"
+          style="color: #c8cae8"
+          placeholder="Search by website or username..."
+        />
+      </div>
+
+      <!-- Add password button -->
+      <button
+        onclick="openAddModal()"
+        class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
+        style="background: #6c63ff; color: white"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Add Password
+      </button>
+    </header>
+
+    <!-- Scrollable vault content -->
+    <main class="flex-1 overflow-y-auto px-6 py-6">
+      <!-- Stats row -->
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div
+          class="rounded-xl p-4"
+          style="background: #1a1d27; border: 1px solid #1e2235"
+        >
+          <div class="text-2xl font-bold" style="color: #a09bff">
+            {{ passwords|length }}
+          </div>
+          <div class="text-xs mt-1" style="color: #4a5080">Total Saved</div>
+        </div>
+        <div
+          class="rounded-xl p-4"
+          style="background: #1a1d27; border: 1px solid #1e2235"
+        >
+          <div class="text-2xl font-bold" style="color: #63d4a0">
+            {{ passwords|length }}
+          </div>
+          <div class="text-xs mt-1" style="color: #4a5080">Encrypted</div>
+        </div>
+        <div
+          class="rounded-xl p-4"
+          style="background: #1a1d27; border: 1px solid #1e2235"
+        >
+          <div class="text-2xl font-bold" style="color: #f0a04a">
+            {{ current_user.created_at.strftime('%b %Y') }}
+          </div>
+          <div class="text-xs mt-1" style="color: #4a5080">Member Since</div>
+        </div>
+      </div>
+
+      <!-- Section header -->
+      <div class="flex items-center justify-between mb-3">
+        <h2
+          class="text-xs font-semibold uppercase tracking-widest"
+          style="color: #6b7299"
+        >
+          Vault Entries
+        </h2>
+        <span class="text-xs" style="color: #4a5080" id="entryCount">
+          {{ passwords|length }} item{{ 's' if passwords|length != 1 else '' }}
+        </span>
+      </div>
+
+      <!-- Empty state -->
+      {% if not passwords %}
+      <div class="flex flex-col items-center justify-center py-20 text-center">
+        <div
+          class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+          style="background: #1a1d27; border: 1px solid #1e2235"
+        >
+          <svg
+            class="w-8 h-8"
+            style="color: #3a3d5c"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+        </div>
+        <p class="text-sm font-medium mb-1" style="color: #6b7299">
+          Your vault is empty
+        </p>
+        <p class="text-xs mb-4" style="color: #3a3d5c">
+          Add your first password to get started
+        </p>
+        <button
+          onclick="openAddModal()"
+          class="px-4 py-2 rounded-xl text-sm font-semibold"
+          style="
+            background: #6c63ff18;
+            color: #a09bff;
+            border: 1px solid #6c63ff33;
+          "
+        >
+          + Add First Password
+        </button>
+      </div>
+      {% endif %}
+
+      <!-- Password list -->
+      <div id="vaultList" class="space-y-2">
+        {% for entry in passwords %}
+        <div
+          class="vault-row rounded-xl px-4 py-3 flex items-center gap-4 transition-colors"
+          style="background: #1a1d27; border: 1px solid #1e2235"
+          data-website="{{ entry.website_name|lower }}"
+          data-username="{{ entry.username|lower }}"
+        >
+          <!-- Icon -->
+          <div
+            class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-base"
+            style="background: #21253a"
+          >
+            {{ entry.website_name[0].upper() }}
+          </div>
+
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold truncate" style="color: #c8cae8">
+              {{ entry.website_name }}
+            </div>
+            <div class="text-xs truncate mt-0.5" style="color: #4a5080">
+              {{ entry.username }}
+            </div>
+          </div>
+
+          <!-- Masked password -->
+          <div class="text-xs font-mono tracking-widest" style="color: #3a3d5c">
+            ••••••••
+          </div>
+
+          <!-- Action buttons -->
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <!-- Copy password -->
+            <button
+              onclick="copyPassword({{ entry.id }}, this)"
+              title="Copy password"
+              class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style="background: #21253a; border: 1px solid #2a2d42"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                style="color: #6b7299"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+            </button>
+
+            <!-- Edit (placeholder for Step 7B) -->
+            <button
+              onclick="openEditModal({{ entry.id }}, '{{ entry.website_name|e }}', '{{ entry.username|e }}', '{{ entry.notes|e if entry.notes else '' }}')"
+              title="Edit"
+              class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style="background: #21253a; border: 1px solid #2a2d42"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                style="color: #6b9eff"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+            </button>
+
+            <!-- Delete (placeholder for Step 7B) -->
+            <button
+              onclick="confirmDelete({{ entry.id }}, '{{ entry.website_name|e }}')"
+              title="Delete"
+              class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style="background: #21253a; border: 1px solid #2a2d42"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                style="color: #e05555"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ─── MODALS (empty placeholders — filled in Step 7B) ───── -->
+<div id="addModal" class="hidden fixed inset-0 z-50"></div>
+<div id="editModal" class="hidden fixed inset-0 z-50"></div>
+<div id="deleteModal" class="hidden fixed inset-0 z-50"></div>
+<div id="generatorModal" class="hidden fixed inset-0 z-50"></div>
+
+<!-- ─── AUTO LOGOUT (15 min inactivity) ──────────────────── -->
+<script>
+  let idleTimer;
+
+  function resetTimer() {
+    clearTimeout(idleTimer);
+    // 15 minutes = 900,000 ms
+    idleTimer = setTimeout(() => {
+      window.location.href = "{{ url_for('auth.logout') }}";
+    }, 900000);
+  }
+
+  // Reset timer on any user interaction
+  ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach((evt) => {
+    document.addEventListener(evt, resetTimer, { passive: true });
+  });
+
+  resetTimer(); // Start the timer on page load
+
+  // ─── SEARCH ──────────────────────────────────────────────
+  function filterVault(query) {
+    const q = query.toLowerCase();
+    const rows = document.querySelectorAll(".vault-row");
+    let visible = 0;
+
+    rows.forEach((row) => {
+      const website = row.dataset.website || "";
+      const username = row.dataset.username || "";
+      const match = website.includes(q) || username.includes(q);
+      row.style.display = match ? "" : "none";
+      if (match) visible++;
+    });
+
+    document.getElementById("entryCount").textContent =
+      visible + " item" + (visible !== 1 ? "s" : "");
+  }
+
+  // ─── COPY PASSWORD ───────────────────────────────────────
+  async function copyPassword(entryId, btn) {
+    try {
+      const res = await fetch(`/vault/get-password/${entryId}`);
+      const data = await res.json();
+
+      if (data.error) {
+        showToast(data.error, "error");
+        return;
+      }
+
+      await navigator.clipboard.writeText(data.password);
+
+      // Visual feedback on the button
+      btn.style.background = "#1a3a2a";
+      btn.style.borderColor = "#63d4a044";
+      btn.innerHTML = `<svg class="w-3.5 h-3.5" style="color:#63d4a0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
+
+      setTimeout(() => {
+        btn.style.background = "#21253a";
+        btn.style.borderColor = "#2a2d42";
+        btn.innerHTML = `<svg class="w-3.5 h-3.5" style="color:#6b7299" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`;
+      }, 2000);
+    } catch (err) {
+      showToast("Failed to copy password", "error");
+    }
+  }
+
+  // ─── TOAST NOTIFICATION ──────────────────────────────────
+  function showToast(message, type = "success") {
+    const toast = document.createElement("div");
+    toast.className =
+      "fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-xl";
+    toast.style.cssText =
+      type === "success"
+        ? "background:#1a3a2a; border:1px solid #63d4a044; color:#63d4a0;"
+        : "background:#3a1a1a; border:1px solid #e0555544; color:#e05555;";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  // ─── MODAL STUBS (filled in Step 7B) ─────────────────────
+  function openAddModal() {
+    showToast("Add modal — coming in Step 7B", "info");
+  }
+  function openEditModal() {
+    showToast("Edit modal — coming in Step 7B", "info");
+  }
+  function confirmDelete() {
+    showToast("Delete — coming in Step 7B", "info");
+  }
+  function openGeneratorModal() {
+    showToast("Generator — coming in Step 7C", "info");
+  }
+</script>
+{% endblock %}
