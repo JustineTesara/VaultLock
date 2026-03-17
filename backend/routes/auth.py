@@ -1,11 +1,12 @@
 # backend/routes/auth.py
 # Handles registration, login, and logout
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
 from extensions import db, bcrypt, limiter
 from models.user import User
+from utils.helpers import sanitize_text, sanitize_email
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -19,9 +20,13 @@ def register():
         return redirect(url_for('vault.vault_home'))
 
     if request.method == 'POST':
-        email    = request.form.get('email', '').strip().lower()
+        email    = sanitize_email(request.form.get('email', ''))
         password = request.form.get('password', '')
         confirm  = request.form.get('confirm_password', '')
+
+        if not email:
+            flash('Please enter a valid email address.', 'error')
+            return render_template('register.html')
 
         # ── Validation ──────────────────────────────────────────────────────
         if not email or not password or not confirm:
@@ -66,7 +71,7 @@ def login():
         return redirect(url_for('vault.vault_home'))
 
     if request.method == 'POST':
-        email    = request.form.get('email', '').strip().lower()
+        email    = sanitize_email(request.form.get('email', ''))
         password = request.form.get('password', '')
 
         if not email or not password:
@@ -130,3 +135,8 @@ def logout():
     session.clear()         # Clears all session data
     flash('You have been logged out.', 'success')
     return redirect(url_for('auth.login'))
+
+@auth_bp.errorhandler(429)
+def rate_limit_handler(e):
+    flash('Too many attempts. Please wait a moment before trying again.', 'error')
+    return render_template('login.html'), 429

@@ -399,12 +399,580 @@ block content %}
   </div>
 </div>
 
-<!-- ─── MODALS (empty placeholders — filled in Step 7B) ───── -->
-<div id="addModal" class="hidden fixed inset-0 z-50"></div>
-<div id="editModal" class="hidden fixed inset-0 z-50"></div>
-<div id="deleteModal" class="hidden fixed inset-0 z-50"></div>
-<div id="generatorModal" class="hidden fixed inset-0 z-50"></div>
+<!-- ─── ADD MODAL ─────────────────────────────────────────── -->
+<div
+  id="addModal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"
+  style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px)"
+>
+  <div
+    class="w-full max-w-md rounded-2xl p-6 shadow-2xl"
+    style="background: #1a1d27; border: 1px solid #2e3350"
+  >
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-base font-bold" style="color: #e0e0f0">Add Password</h2>
+      <button
+        onclick="closeModal('addModal')"
+        class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+        style="color: #6b7299; background: #21253a"
+      >
+        ✕
+      </button>
+    </div>
 
+    <form id="addForm" onsubmit="submitAdd(event)" class="space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2"
+          >Website / App name</label
+        >
+        <input
+          type="text"
+          name="website_name"
+          required
+          placeholder="e.g. GitHub"
+          class="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-colors"
+          style="background: #0f1117; border: 1px solid #2a2d42; color: #c8cae8"
+          onfocus="this.style.borderColor = '#6c63ff'"
+          onblur="this.style.borderColor = '#2a2d42'"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2"
+          >Username / Email</label
+        >
+        <input
+          type="text"
+          name="username"
+          required
+          placeholder="e.g. you@email.com"
+          class="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-colors"
+          style="background: #0f1117; border: 1px solid #2a2d42; color: #c8cae8"
+          onfocus="this.style.borderColor = '#6c63ff'"
+          onblur="this.style.borderColor = '#2a2d42'"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2"
+          >Password</label
+        >
+        <div class="relative">
+          <input
+            type="password"
+            name="password"
+            id="addPassword"
+            required
+            placeholder="Enter password"
+            oninput="
+              updateStrengthBar(
+                this.value,
+                'addStrengthBar',
+                'addStrengthLabel',
+              )
+            "
+            class="w-full px-3 py-2.5 rounded-xl text-sm outline-none pr-20 transition-colors"
+            style="
+              background: #0f1117;
+              border: 1px solid #2a2d42;
+              color: #c8cae8;
+            "
+            onfocus="this.style.borderColor = '#6c63ff'"
+            onblur="this.style.borderColor = '#2a2d42'"
+          />
+          <div class="absolute right-1 top-1 flex gap-1">
+            <!-- Toggle visibility -->
+            <button
+              type="button"
+              onclick="toggleVis('addPassword')"
+              class="px-2 py-1.5 rounded-lg text-xs transition-colors"
+              style="color: #6b7299; background: #21253a"
+            >
+              👁
+            </button>
+            <!-- Generate random password -->
+            <button
+              type="button"
+              onclick="
+                fillGenerated(
+                  'addPassword',
+                  'addStrengthBar',
+                  'addStrengthLabel',
+                )
+              "
+              class="px-2 py-1.5 rounded-lg text-xs font-bold transition-colors"
+              style="color: #a09bff; background: #6c63ff18"
+            >
+              ↻
+            </button>
+          </div>
+        </div>
+        <!-- Strength bar -->
+        <div
+          class="mt-2 h-1 rounded-full overflow-hidden"
+          style="background: #0f1117"
+        >
+          <div
+            id="addStrengthBar"
+            class="h-full rounded-full transition-all duration-300 w-0"
+          ></div>
+        </div>
+        <p
+          id="addStrengthLabel"
+          class="text-xs mt-1"
+          style="color: #4a5080"
+        ></p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2"
+          >Notes <span style="color: #4a5080">(optional)</span></label
+        >
+        <textarea
+          name="notes"
+          rows="2"
+          placeholder="Any extra info..."
+          class="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none transition-colors"
+          style="background: #0f1117; border: 1px solid #2a2d42; color: #c8cae8"
+          onfocus="this.style.borderColor = '#6c63ff'"
+          onblur="this.style.borderColor = '#2a2d42'"
+        ></textarea>
+      </div>
+
+      <div class="flex gap-3 pt-1">
+        <button
+          type="button"
+          onclick="closeModal('addModal')"
+          class="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors"
+          style="background: #21253a; color: #6b7299; border: 1px solid #2a2d42"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          id="addSubmitBtn"
+          class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+          style="background: #6c63ff; color: white"
+        >
+          Save Password
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ─── EDIT MODAL ─────────────────────────────────────────── -->
+<div
+  id="editModal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"
+  style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px)"
+>
+  <div
+    class="w-full max-w-md rounded-2xl p-6 shadow-2xl"
+    style="background: #1a1d27; border: 1px solid #2e3350"
+  >
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-base font-bold" style="color: #e0e0f0">Edit Password</h2>
+      <button
+        onclick="closeModal('editModal')"
+        class="w-8 h-8 rounded-lg flex items-center justify-center"
+        style="color: #6b7299; background: #21253a"
+      >
+        ✕
+      </button>
+    </div>
+
+    <form id="editForm" onsubmit="submitEdit(event)" class="space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <input type="hidden" id="editEntryId" />
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2"
+          >Website / App name</label
+        >
+        <input
+          type="text"
+          id="editWebsite"
+          name="website_name"
+          required
+          class="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-colors"
+          style="background: #0f1117; border: 1px solid #2a2d42; color: #c8cae8"
+          onfocus="this.style.borderColor = '#6c63ff'"
+          onblur="this.style.borderColor = '#2a2d42'"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2"
+          >Username / Email</label
+        >
+        <input
+          type="text"
+          id="editUsername"
+          name="username"
+          required
+          class="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-colors"
+          style="background: #0f1117; border: 1px solid #2a2d42; color: #c8cae8"
+          onfocus="this.style.borderColor = '#6c63ff'"
+          onblur="this.style.borderColor = '#2a2d42'"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2">
+          New Password
+          <span class="font-normal" style="color: #4a5080"
+            >(leave blank to keep current)</span
+          >
+        </label>
+        <div class="relative">
+          <input
+            type="password"
+            name="password"
+            id="editPassword"
+            placeholder="Enter new password to change it"
+            oninput="
+              updateStrengthBar(
+                this.value,
+                'editStrengthBar',
+                'editStrengthLabel',
+              )
+            "
+            class="w-full px-3 py-2.5 rounded-xl text-sm outline-none pr-10 transition-colors"
+            style="
+              background: #0f1117;
+              border: 1px solid #2a2d42;
+              color: #c8cae8;
+            "
+            onfocus="this.style.borderColor = '#6c63ff'"
+            onblur="this.style.borderColor = '#2a2d42'"
+          />
+          <button
+            type="button"
+            onclick="toggleVis('editPassword')"
+            class="absolute right-2 top-1/2 -translate-y-1/2 text-xs px-1"
+            style="color: #6b7299"
+          >
+            👁
+          </button>
+        </div>
+        <div
+          class="mt-2 h-1 rounded-full overflow-hidden"
+          style="background: #0f1117"
+        >
+          <div
+            id="editStrengthBar"
+            class="h-full rounded-full transition-all duration-300 w-0"
+          ></div>
+        </div>
+        <p
+          id="editStrengthLabel"
+          class="text-xs mt-1"
+          style="color: #4a5080"
+        ></p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2"
+          >Notes</label
+        >
+        <textarea
+          id="editNotes"
+          name="notes"
+          rows="2"
+          class="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none transition-colors"
+          style="background: #0f1117; border: 1px solid #2a2d42; color: #c8cae8"
+          onfocus="this.style.borderColor = '#6c63ff'"
+          onblur="this.style.borderColor = '#2a2d42'"
+        ></textarea>
+      </div>
+
+      <div class="flex gap-3 pt-1">
+        <button
+          type="button"
+          onclick="closeModal('editModal')"
+          class="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors"
+          style="background: #21253a; color: #6b7299; border: 1px solid #2a2d42"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+          style="background: #6c63ff; color: white"
+        >
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ─── DELETE CONFIRMATION MODAL ─────────────────────────── -->
+<div
+  id="deleteModal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"
+  style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px)"
+>
+  <div
+    class="w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center"
+    style="background: #1a1d27; border: 1px solid #2e3350"
+  >
+    <div
+      class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4"
+      style="background: #3a1a1a; border: 1px solid #e0555522"
+    >
+      <svg
+        class="w-6 h-6"
+        style="color: #e05555"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+        />
+      </svg>
+    </div>
+
+    <h2 class="text-base font-bold mb-1" style="color: #e0e0f0">
+      Delete entry?
+    </h2>
+    <p class="text-sm mb-5" style="color: #6b7299">
+      You are about to delete
+      <span
+        id="deleteEntryName"
+        class="font-semibold"
+        style="color: #c8cae8"
+      ></span
+      >. This cannot be undone.
+    </p>
+    <input type="hidden" id="deleteEntryId" />
+
+    <div class="flex gap-3">
+      <button
+        onclick="closeModal('deleteModal')"
+        class="flex-1 py-2.5 rounded-xl text-sm font-medium"
+        style="background: #21253a; color: #6b7299; border: 1px solid #2a2d42"
+      >
+        Cancel
+      </button>
+      <button
+        onclick="submitDelete()"
+        class="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+        style="background: #e05555; color: white"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+<!-- ─── PASSWORD GENERATOR MODAL ──────────────────────────── -->
+<div
+  id="generatorModal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"
+  style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px)"
+>
+  <div
+    class="w-full max-w-md rounded-2xl shadow-2xl"
+    style="background: #1a1d27; border: 1px solid #2e3350"
+  >
+    <!-- Header -->
+    <div
+      class="flex items-center justify-between px-6 py-5"
+      style="border-bottom: 1px solid #1e2235"
+    >
+      <div>
+        <h2 class="text-base font-bold" style="color: #e0e0f0">
+          Password Generator
+        </h2>
+        <p class="text-xs mt-0.5" style="color: #4a5080">
+          Cryptographically random
+        </p>
+      </div>
+      <button
+        onclick="closeModal('generatorModal')"
+        class="w-8 h-8 rounded-lg flex items-center justify-center"
+        style="color: #6b7299; background: #21253a"
+      >
+        ✕
+      </button>
+    </div>
+
+    <div class="px-6 py-5 space-y-5">
+      <!-- Generated password display -->
+      <div
+        class="rounded-xl px-4 py-4 flex items-center gap-3"
+        style="background: #0f1117; border: 1px solid #2a2d42"
+      >
+        <span
+          id="genOutput"
+          class="flex-1 text-sm font-mono break-all select-all"
+          style="color: #a09bff; letter-spacing: 0.06em; min-height: 1.4em"
+        >
+          <!-- filled by JS on open -->
+        </span>
+        <button
+          onclick="copyGenerated()"
+          id="genCopyBtn"
+          class="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+          style="background: #6c63ff; color: white"
+        >
+          Copy
+        </button>
+      </div>
+
+      <!-- Strength indicator -->
+      <div class="flex items-center gap-3">
+        <div
+          class="flex-1 h-1.5 rounded-full overflow-hidden"
+          style="background: #0f1117"
+        >
+          <div
+            id="genStrengthBar"
+            class="h-full rounded-full transition-all duration-300"
+            style="width: 0%; background: #63d4a0"
+          ></div>
+        </div>
+        <span
+          id="genStrengthLabel"
+          class="text-xs w-20 text-right font-medium"
+          style="color: #4a5080"
+        ></span>
+      </div>
+
+      <!-- Length slider -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-medium" style="color: #9ba3c2"
+            >Length</label
+          >
+          <span
+            id="genLengthDisplay"
+            class="text-sm font-bold"
+            style="color: #a09bff"
+            >16</span
+          >
+        </div>
+        <input
+          type="range"
+          id="genLength"
+          min="8"
+          max="64"
+          value="16"
+          oninput="onLengthChange(this.value)"
+          class="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+          style="accent-color: #6c63ff"
+        />
+        <div class="flex justify-between text-xs" style="color: #3a3d5c">
+          <span>8</span>
+          <span>64</span>
+        </div>
+      </div>
+
+      <!-- Character type toggles -->
+      <div class="grid grid-cols-2 gap-2">
+        <label
+          class="flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer"
+          style="background: #0f1117; border: 1px solid #2a2d42"
+        >
+          <span class="text-xs" style="color: #9ba3c2">Uppercase (A–Z)</span>
+          <input
+            type="checkbox"
+            id="genUpper"
+            checked
+            onchange="generatePassword()"
+            class="w-4 h-4 rounded"
+            style="accent-color: #6c63ff"
+          />
+        </label>
+
+        <label
+          class="flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer"
+          style="background: #0f1117; border: 1px solid #2a2d42"
+        >
+          <span class="text-xs" style="color: #9ba3c2">Lowercase (a–z)</span>
+          <input
+            type="checkbox"
+            id="genLower"
+            checked
+            onchange="generatePassword()"
+            class="w-4 h-4 rounded"
+            style="accent-color: #6c63ff"
+          />
+        </label>
+
+        <label
+          class="flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer"
+          style="background: #0f1117; border: 1px solid #2a2d42"
+        >
+          <span class="text-xs" style="color: #9ba3c2">Numbers (0–9)</span>
+          <input
+            type="checkbox"
+            id="genNumbers"
+            checked
+            onchange="generatePassword()"
+            class="w-4 h-4 rounded"
+            style="accent-color: #6c63ff"
+          />
+        </label>
+
+        <label
+          class="flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer"
+          style="background: #0f1117; border: 1px solid #2a2d42"
+        >
+          <span class="text-xs" style="color: #9ba3c2">Symbols (!@#$)</span>
+          <input
+            type="checkbox"
+            id="genSymbols"
+            checked
+            onchange="generatePassword()"
+            class="w-4 h-4 rounded"
+            style="accent-color: #6c63ff"
+          />
+        </label>
+      </div>
+
+      <!-- Exclude ambiguous chars option -->
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          id="genNoAmbiguous"
+          onchange="generatePassword()"
+          class="w-4 h-4 rounded"
+          style="accent-color: #6c63ff"
+        />
+        <span class="text-xs" style="color: #6b7299">
+          Exclude ambiguous characters
+          <span style="color: #3a3d5c">(0, O, l, 1, I)</span>
+        </span>
+      </label>
+
+      <!-- Action buttons -->
+      <div class="flex gap-3 pt-1">
+        <button
+          onclick="generatePassword()"
+          class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+          style="background: #21253a; color: #9ba3c2; border: 1px solid #2a2d42"
+        >
+          ↻ Regenerate
+        </button>
+        <button
+          onclick="useGeneratedPassword()"
+          class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+          style="background: #6c63ff; color: white"
+        >
+          Use this password
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- ─── AUTO LOGOUT (15 min inactivity) ──────────────────── -->
 <script>
   let idleTimer;
@@ -486,18 +1054,444 @@ block content %}
     setTimeout(() => toast.remove(), 3000);
   }
 
-  // ─── MODAL STUBS (filled in Step 7B) ─────────────────────
+  // ─── MODAL HELPERS ────────────────────────────────────────
+
+  function openModal(id) {
+    document.getElementById(id).classList.remove("hidden");
+    document.body.style.overflow = "hidden"; // prevent background scroll
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  // Close modal when clicking the dark backdrop
+  ["addModal", "editModal", "deleteModal", "generatorModal"].forEach((id) => {
+    document.getElementById(id).addEventListener("click", function (e) {
+      if (e.target === this) closeModal(id);
+    });
+  });
+
+  // Close modals with Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      ["addModal", "editModal", "deleteModal", "generatorModal"].forEach(
+        closeModal,
+      );
+    }
+  });
+
+  // ─── PASSWORD STRENGTH BAR ────────────────────────────────
+
+  function updateStrengthBar(password, barId, labelId) {
+    const bar = document.getElementById(barId);
+    const label = document.getElementById(labelId);
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    const levels = [
+      { w: "0%", color: "", text: "" },
+      { w: "20%", color: "#e05555", text: "Very weak" },
+      { w: "40%", color: "#f0a04a", text: "Weak" },
+      { w: "60%", color: "#f0d060", text: "Fair" },
+      { w: "80%", color: "#6b9eff", text: "Strong" },
+      { w: "100%", color: "#63d4a0", text: "Very strong" },
+    ];
+    const lvl = levels[score] || levels[0];
+    bar.style.width = lvl.w;
+    bar.style.background = lvl.color;
+    label.textContent = lvl.text;
+    label.style.color = lvl.color;
+  }
+
+  function toggleVis(fieldId) {
+    const f = document.getElementById(fieldId);
+    f.type = f.type === "password" ? "text" : "password";
+  }
+
+  // Quick random password for the ↻ button in Add modal
+  function fillGenerated(fieldId, barId, labelId) {
+    const chars =
+      "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%^&*";
+    let pwd = "";
+    for (let i = 0; i < 16; i++) {
+      pwd += chars[Math.floor(Math.random() * chars.length)];
+    }
+    const field = document.getElementById(fieldId);
+    field.value = pwd;
+    field.type = "text"; // show it so user can see/copy
+    updateStrengthBar(pwd, barId, labelId);
+  }
+
+  // ─── ADD MODAL ────────────────────────────────────────────
+
   function openAddModal() {
-    showToast("Add modal — coming in Step 7B", "info");
+    document.getElementById("addForm").reset();
+    document.getElementById("addStrengthBar").style.width = "0";
+    document.getElementById("addStrengthLabel").textContent = "";
+    openModal("addModal");
   }
-  function openEditModal() {
-    showToast("Edit modal — coming in Step 7B", "info");
+
+  async function submitAdd(e) {
+    e.preventDefault();
+    const btn = document.getElementById("addSubmitBtn");
+    const form = document.getElementById("addForm");
+
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+
+    try {
+      const res = await fetch("/vault/add", {
+        method: "POST",
+        body: new FormData(form),
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        showToast(data.error, "error");
+        return;
+      }
+
+      closeModal("addModal");
+      showToast("Password saved!");
+
+      // Add new row to the DOM without a full page reload
+      addRowToVault(data.entry);
+
+      // Update total count
+      updateCount(1);
+    } catch (err) {
+      showToast("Something went wrong.", "error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Save Password";
+    }
   }
-  function confirmDelete() {
-    showToast("Delete — coming in Step 7B", "info");
+
+  // ─── EDIT MODAL ───────────────────────────────────────────
+
+  function openEditModal(id, website, username, notes) {
+    document.getElementById("editEntryId").value = id;
+    document.getElementById("editWebsite").value = website;
+    document.getElementById("editUsername").value = username;
+    document.getElementById("editNotes").value = notes;
+    document.getElementById("editPassword").value = "";
+    document.getElementById("editStrengthBar").style.width = "0";
+    document.getElementById("editStrengthLabel").textContent = "";
+    openModal("editModal");
   }
+
+  async function submitEdit(e) {
+    e.preventDefault();
+    const id = document.getElementById("editEntryId").value;
+    const form = document.getElementById("editForm");
+
+    try {
+      const res = await fetch(`/vault/edit/${id}`, {
+        method: "POST",
+        body: new FormData(form),
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        showToast(data.error, "error");
+        return;
+      }
+
+      closeModal("editModal");
+      showToast("Entry updated!");
+
+      // Update the row in the DOM
+      updateRowInVault(id, form);
+    } catch (err) {
+      showToast("Something went wrong.", "error");
+    }
+  }
+
+  // ─── DELETE MODAL ─────────────────────────────────────────
+
+  function confirmDelete(id, websiteName) {
+    document.getElementById("deleteEntryId").value = id;
+    document.getElementById("deleteEntryName").textContent = websiteName;
+    openModal("deleteModal");
+  }
+
+  async function submitDelete() {
+    const id = document.getElementById("deleteEntryId").value;
+
+    // Get CSRF token from the add form (already on the page)
+    const csrf = document.querySelector(
+      '#addForm input[name="csrf_token"]',
+    ).value;
+
+    try {
+      const res = await fetch(`/vault/delete/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `csrf_token=${encodeURIComponent(csrf)}`,
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        showToast(data.error, "error");
+        return;
+      }
+
+      closeModal("deleteModal");
+      showToast("Entry deleted.", "error");
+
+      // Remove the row from DOM
+      removeRowFromVault(id);
+      updateCount(-1);
+    } catch (err) {
+      showToast("Something went wrong.", "error");
+    }
+  }
+
+  // ─── PASSWORD GENERATOR ───────────────────────────────────
+
   function openGeneratorModal() {
-    showToast("Generator — coming in Step 7C", "info");
+    generatePassword(); // generate one immediately on open
+    openModal("generatorModal");
+  }
+
+  function onLengthChange(val) {
+    document.getElementById("genLengthDisplay").textContent = val;
+    generatePassword();
+  }
+
+  function generatePassword() {
+    // Build the character pool based on checked options
+    const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // no I
+    const lower = "abcdefghjkmnpqrstuvwxyz"; // no l
+    const numbers = "23456789"; // no 0,1
+    const symbols = "!@#$%^&*-_=+?";
+    const ambiguous = "Il1O0";
+
+    const useUpper = document.getElementById("genUpper").checked;
+    const useLower = document.getElementById("genLower").checked;
+    const useNumbers = document.getElementById("genNumbers").checked;
+    const useSymbols = document.getElementById("genSymbols").checked;
+    const noAmbig = document.getElementById("genNoAmbiguous").checked;
+
+    // At least one type must be selected
+    if (!useUpper && !useLower && !useNumbers && !useSymbols) {
+      document.getElementById("genOutput").textContent =
+        "Select at least one character type";
+      return;
+    }
+
+    let pool = "";
+    if (useUpper) pool += upper;
+    if (useLower) pool += lower;
+    if (useNumbers) pool += numbers;
+    if (useSymbols) pool += symbols;
+
+    // Remove ambiguous characters if option is checked
+    if (noAmbig) {
+      pool = pool
+        .split("")
+        .filter((c) => !ambiguous.includes(c))
+        .join("");
+    }
+
+    const length = parseInt(document.getElementById("genLength").value);
+
+    // Use crypto.getRandomValues() — cryptographically secure random
+    // This is much better than Math.random() for security purposes
+    const array = new Uint32Array(length);
+    crypto.getRandomValues(array);
+
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      password += pool[array[i] % pool.length];
+    }
+
+    // Guarantee at least one character from each selected type
+    // This prevents edge cases like "all symbols" when upper is checked
+    let guaranteed = "";
+    if (useUpper) guaranteed += upper[Math.floor(Math.random() * upper.length)];
+    if (useLower) guaranteed += lower[Math.floor(Math.random() * lower.length)];
+    if (useNumbers)
+      guaranteed += numbers[Math.floor(Math.random() * numbers.length)];
+    if (useSymbols)
+      guaranteed += symbols[Math.floor(Math.random() * symbols.length)];
+
+    // Splice guaranteed chars into random positions
+    const pwdArr = password.split("");
+    guaranteed.split("").forEach((ch, i) => {
+      const pos = Math.floor(Math.random() * pwdArr.length);
+      pwdArr[pos] = ch;
+    });
+    password = pwdArr.join("");
+
+    document.getElementById("genOutput").textContent = password;
+    updateGeneratorStrength(password);
+  }
+
+  function updateGeneratorStrength(password) {
+    const bar = document.getElementById("genStrengthBar");
+    const label = document.getElementById("genStrengthLabel");
+
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (password.length >= 20) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    // Normalize score to 5 levels
+    const level = Math.min(Math.floor((score / 7) * 5), 5);
+
+    const levels = [
+      { w: "10%", color: "#e05555", text: "Very weak" },
+      { w: "25%", color: "#f0a04a", text: "Weak" },
+      { w: "50%", color: "#f0d060", text: "Fair" },
+      { w: "75%", color: "#6b9eff", text: "Strong" },
+      { w: "90%", color: "#63d4a0", text: "Very strong" },
+      { w: "100%", color: "#63d4a0", text: "Excellent" },
+    ];
+
+    const lvl = levels[level];
+    bar.style.width = lvl.w;
+    bar.style.background = lvl.color;
+    label.textContent = lvl.text;
+    label.style.color = lvl.color;
+  }
+
+  async function copyGenerated() {
+    const pwd = document.getElementById("genOutput").textContent;
+    const btn = document.getElementById("genCopyBtn");
+
+    if (!pwd || pwd.includes("Select at least")) return;
+
+    await navigator.clipboard.writeText(pwd);
+
+    btn.textContent = "✓ Copied!";
+    btn.style.background = "#1a3a2a";
+    btn.style.borderColor = "#63d4a044";
+    btn.style.color = "#63d4a0";
+
+    setTimeout(() => {
+      btn.textContent = "Copy";
+      btn.style.background = "#6c63ff";
+      btn.style.color = "white";
+    }, 2000);
+  }
+
+  function useGeneratedPassword() {
+    const pwd = document.getElementById("genOutput").textContent;
+
+    if (!pwd || pwd.includes("Select at least")) {
+      showToast("Generate a password first", "error");
+      return;
+    }
+
+    // Close generator and open Add modal with the password pre-filled
+    closeModal("generatorModal");
+    openAddModal();
+
+    // Small delay to let the Add modal render before filling the field
+    setTimeout(() => {
+      const field = document.getElementById("addPassword");
+      field.value = pwd;
+      field.type = "text"; // show it so user can see what was filled
+      updateStrengthBar(pwd, "addStrengthBar", "addStrengthLabel");
+      showToast("Password filled into the form!");
+    }, 100);
+  }
+
+  // ─── DOM HELPERS (update page without reload) ─────────────
+
+  function addRowToVault(entry) {
+    // Remove empty-state if it exists
+    const empty = document.querySelector(".vault-empty-state");
+    if (empty) empty.remove();
+
+    const list = document.getElementById("vaultList");
+    const initial = entry.website_name[0].toUpperCase();
+
+    const div = document.createElement("div");
+    div.className =
+      "vault-row rounded-xl px-4 py-3 flex items-center gap-4 transition-colors";
+    div.style.cssText = "background:#1a1d27; border:1px solid #1e2235;";
+    div.dataset.id = entry.id;
+    div.dataset.website = entry.website_name.toLowerCase();
+    div.dataset.username = entry.username.toLowerCase();
+
+    div.innerHTML = `
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-base font-semibold"
+         style="background:#21253a; color:#a09bff;">${initial}</div>
+    <div class="flex-1 min-w-0">
+      <div class="text-sm font-semibold truncate" style="color:#c8cae8;">${entry.website_name}</div>
+      <div class="text-xs truncate mt-0.5" style="color:#4a5080;">${entry.username}</div>
+    </div>
+    <div class="text-xs font-mono tracking-widest" style="color:#3a3d5c;">••••••••</div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button onclick="copyPassword(${entry.id}, this)" title="Copy"
+              class="w-8 h-8 rounded-lg flex items-center justify-center"
+              style="background:#21253a; border:1px solid #2a2d42;">
+        <svg class="w-3.5 h-3.5" style="color:#6b7299" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+      </button>
+      <button onclick="openEditModal(${entry.id},'${entry.website_name}','${entry.username}','${entry.notes}')"
+              title="Edit"
+              class="w-8 h-8 rounded-lg flex items-center justify-center"
+              style="background:#21253a; border:1px solid #2a2d42;">
+        <svg class="w-3.5 h-3.5" style="color:#6b9eff" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+      </button>
+      <button onclick="confirmDelete(${entry.id},'${entry.website_name}')"
+              title="Delete"
+              class="w-8 h-8 rounded-lg flex items-center justify-center"
+              style="background:#21253a; border:1px solid #2a2d42;">
+        <svg class="w-3.5 h-3.5" style="color:#e05555" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </div>`;
+
+    list.prepend(div);
+  }
+
+  function updateRowInVault(id, form) {
+    const row = document.querySelector(`.vault-row[data-id="${id}"]`);
+    if (!row) {
+      location.reload();
+      return;
+    }
+
+    const website = form.querySelector('[name="website_name"]').value;
+    const username = form.querySelector('[name="username"]').value;
+
+    row.dataset.website = website.toLowerCase();
+    row.dataset.username = username.toLowerCase();
+    row.querySelector(".text-sm.font-semibold").textContent = website;
+    row.querySelector(".text-xs.truncate").textContent = username;
+  }
+
+  function removeRowFromVault(id) {
+    const row = document.querySelector(`.vault-row[data-id="${id}"]`);
+    if (row) row.remove();
+  }
+
+  function updateCount(delta) {
+    const el = document.getElementById("entryCount");
+    const cur = parseInt(el.textContent) + delta;
+    el.textContent = cur + " item" + (cur !== 1 ? "s" : "");
+
+    // Also update the stat card
+    const statNum = document.querySelector(".stat-num");
+    if (statNum) statNum.textContent = cur;
   }
 </script>
 {% endblock %}

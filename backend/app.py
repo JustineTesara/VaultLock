@@ -3,6 +3,7 @@
 from flask import Flask
 from extensions import db, bcrypt, login_manager, csrf, limiter
 from config import Config
+from utils.security import apply_security_headers
 
 
 def create_app():
@@ -24,6 +25,8 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Please log in to access the vault.'
     login_manager.login_message_category = 'warning'
+
+    apply_security_headers(app)
 
     with app.app_context():
         from models.user import User
