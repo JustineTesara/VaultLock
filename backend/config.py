@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 load_dotenv()  # Load .env file into environment variables
 
 class Config:
+    APP_NAME = 'CipherNest'              # Application name
+    APP_TAGLINE = 'Secure Password Manager'  # Short description for SEO and display purposes
+    
     # Flask secret key — used to sign session cookies
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'fallback-dev-key-change-in-production'
     

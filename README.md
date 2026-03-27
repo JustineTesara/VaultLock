@@ -1,4 +1,4 @@
-# 🔐 VaultLock — Secure Password Manager
+# 🔐 CipherNest — Secure Password Manager
 
 A full-stack password manager built for learning purposes, inspired by tools like Bitwarden and LastPass. Passwords are encrypted with AES-256-GCM before being stored in the database and are only decrypted on demand when displayed to the authenticated user.
 
