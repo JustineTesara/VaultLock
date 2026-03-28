@@ -40,8 +40,11 @@ def create_app():
 
         from routes.auth import auth_bp
         from routes.vault import vault_bp
+        from routes.admin import admin_bp 
+        
         app.register_blueprint(auth_bp)
         app.register_blueprint(vault_bp)
+        app.register_blueprint(admin_bp) 
 
     return app
 
