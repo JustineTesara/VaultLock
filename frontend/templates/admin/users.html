@@ -1,0 +1,293 @@
+<!-- frontend/templates/admin/users.html -->
+{% extends "admin/base.html" %} {% block title %}Users — CipherNest Admin{%
+endblock %} {% block content %}
+<div class="flex-1 overflow-y-auto px-8 py-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-xl font-bold" style="color: #e0e0f0">User Management</h1>
+      <p class="text-sm mt-1" style="color: #4a5080">
+        {{ users|length }} user{{ 's' if users|length != 1 else '' }} found
+      </p>
+    </div>
+
+    <!-- Search form -->
+    <form
+      method="GET"
+      action="{{ url_for('admin.users') }}"
+      class="flex items-center gap-2"
+    >
+      <div
+        class="flex items-center gap-2 px-3 py-2 rounded-xl"
+        style="background: #13151f; border: 1px solid #252838"
+      >
+        <svg
+          class="w-4 h-4 flex-shrink-0"
+          style="color: #4a5080"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        <input
+          type="text"
+          name="search"
+          value="{{ search }}"
+          placeholder="Search by email..."
+          class="bg-transparent outline-none text-sm w-52"
+          style="color: #c8cae8"
+        />
+      </div>
+      <button
+        type="submit"
+        class="px-4 py-2 rounded-xl text-sm font-medium"
+        style="background: #6c63ff; color: white"
+      >
+        Search
+      </button>
+      {% if search %}
+      <a
+        href="{{ url_for('admin.users') }}"
+        class="px-4 py-2 rounded-xl text-sm font-medium"
+        style="background: #21253a; color: #6b7299; border: 1px solid #252838"
+      >
+        Clear
+      </a>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Users table -->
+  <div
+    class="rounded-2xl overflow-hidden"
+    style="background: #13151f; border: 1px solid #252838"
+  >
+    <table class="w-full">
+      <thead>
+        <tr style="border-bottom: 1px solid #252838">
+          <th
+            class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            User
+          </th>
+          <th
+            class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            Joined
+          </th>
+          <th
+            class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            Passwords
+          </th>
+          <th
+            class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            Failed Attempts
+          </th>
+          <th
+            class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            Status
+          </th>
+          <th
+            class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr
+          class="table-row transition-colors"
+          style="border-bottom: 1px solid #1a1d2a"
+        >
+          <!-- Email -->
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                style="background: #6c63ff22; color: #a09bff"
+              >
+                {{ user.email[0].upper() }}
+              </div>
+              <div>
+                <div class="text-sm font-medium" style="color: #c8cae8">
+                  {{ user.email }}
+                </div>
+                <div class="text-xs" style="color: #4a5080">
+                  ID: {{ user.id }}
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Joined -->
+          <td class="px-6 py-4 text-sm" style="color: #6b7299">
+            {{ user.created_at.strftime('%b %d, %Y') }}
+          </td>
+
+          <!-- Password count -->
+          <td class="px-6 py-4">
+            <span class="badge" style="background: #6c63ff18; color: #a09bff">
+              {{ user.password_count }} saved
+            </span>
+          </td>
+
+          <!-- Failed attempts -->
+          <td
+            class="px-6 py-4 text-sm text-center"
+            style="color:
+            {% if user.failed_login_attempts >= 3 %}#e05555
+            {% elif user.failed_login_attempts >= 1 %}#f0a04a
+            {% else %}#63d4a0{% endif %};"
+          >
+            {{ user.failed_login_attempts }} / 5
+          </td>
+
+          <!-- Status -->
+          <td class="px-6 py-4">
+            {% if user.is_locked %}
+            <span class="badge" style="background: #e0555518; color: #e05555">
+              Locked
+            </span>
+            {% else %}
+            <span class="badge" style="background: #63d4a018; color: #63d4a0">
+              Active
+            </span>
+            {% endif %}
+          </td>
+
+          <!-- Actions -->
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <!-- Lock / Unlock -->
+              {% if user.is_locked %}
+              <form
+                method="POST"
+                action="{{ url_for('admin.unlock_user', user_id=user.id) }}"
+              >
+                <input
+                  type="hidden"
+                  name="csrf_token"
+                  value="{{ csrf_token() }}"
+                />
+                <button
+                  type="submit"
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  style="
+                    background: #63d4a018;
+                    color: #63d4a0;
+                    border: 1px solid #63d4a033;
+                  "
+                  title="Unlock this account"
+                >
+                  Unlock
+                </button>
+              </form>
+              {% else %}
+              <form
+                method="POST"
+                action="{{ url_for('admin.lock_user', user_id=user.id) }}"
+              >
+                <input
+                  type="hidden"
+                  name="csrf_token"
+                  value="{{ csrf_token() }}"
+                />
+                <button
+                  type="submit"
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  style="
+                    background: #f0a04a18;
+                    color: #f0a04a;
+                    border: 1px solid #f0a04a33;
+                  "
+                  title="Lock this account for 24h"
+                >
+                  Lock
+                </button>
+              </form>
+              {% endif %}
+
+              <!-- Reset attempts -->
+              {% if user.failed_login_attempts > 0 %}
+              <form
+                method="POST"
+                action="{{ url_for('admin.reset_attempts', user_id=user.id) }}"
+              >
+                <input
+                  type="hidden"
+                  name="csrf_token"
+                  value="{{ csrf_token() }}"
+                />
+                <button
+                  type="submit"
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium"
+                  style="
+                    background: #6c63ff18;
+                    color: #a09bff;
+                    border: 1px solid #6c63ff33;
+                  "
+                  title="Reset failed login counter"
+                >
+                  Reset
+                </button>
+              </form>
+              {% endif %}
+
+              <!-- Delete -->
+              <form
+                method="POST"
+                action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                onsubmit="return confirm('Delete {{ user.email }} and ALL their passwords? This cannot be undone.')"
+              >
+                <input
+                  type="hidden"
+                  name="csrf_token"
+                  value="{{ csrf_token() }}"
+                />
+                <button
+                  type="submit"
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium"
+                  style="
+                    background: #e0555518;
+                    color: #e05555;
+                    border: 1px solid #e0555533;
+                  "
+                  title="Permanently delete this user"
+                >
+                  Delete
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="px-6 py-16 text-center">
+            <p class="text-sm" style="color: #4a5080">
+              {% if search %}No users found matching "{{ search }}"{% else %}No
+              users registered yet{% endif %}
+            </p>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

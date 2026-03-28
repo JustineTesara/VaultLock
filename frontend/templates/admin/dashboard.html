@@ -1,0 +1,242 @@
+<!-- frontend/templates/admin/dashboard.html -->
+{% extends "admin/base.html" %} {% block title %}Dashboard — CipherNest Admin{%
+endblock %} {% block content %}
+<div class="flex-1 overflow-y-auto px-8 py-8">
+  <!-- Page header -->
+  <div class="mb-8">
+    <h1 class="text-xl font-bold" style="color: #e0e0f0">Dashboard</h1>
+    <p class="text-sm mt-1" style="color: #4a5080">
+      System overview — {{ now.strftime('%B %d, %Y') if now else '' }}
+    </p>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="grid grid-cols-4 gap-4 mb-8">
+    <div class="stat-card">
+      <div class="flex items-center justify-between mb-3">
+        <span
+          class="text-xs font-medium uppercase tracking-widest"
+          style="color: #4a5080"
+          >Total Users</span
+        >
+        <div
+          class="w-8 h-8 rounded-lg flex items-center justify-center"
+          style="background: #6c63ff18"
+        >
+          <svg
+            class="w-4 h-4"
+            style="color: #a09bff"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"
+            />
+          </svg>
+        </div>
+      </div>
+      <div class="text-3xl font-bold" style="color: #a09bff">
+        {{ total_users }}
+      </div>
+      <div class="text-xs mt-1" style="color: #4a5080">registered accounts</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="flex items-center justify-between mb-3">
+        <span
+          class="text-xs font-medium uppercase tracking-widest"
+          style="color: #4a5080"
+          >Passwords Stored</span
+        >
+        <div
+          class="w-8 h-8 rounded-lg flex items-center justify-center"
+          style="background: #63d4a018"
+        >
+          <svg
+            class="w-4 h-4"
+            style="color: #63d4a0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+            />
+          </svg>
+        </div>
+      </div>
+      <div class="text-3xl font-bold" style="color: #63d4a0">
+        {{ total_passwords }}
+      </div>
+      <div class="text-xs mt-1" style="color: #4a5080">
+        encrypted credentials
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="flex items-center justify-between mb-3">
+        <span
+          class="text-xs font-medium uppercase tracking-widest"
+          style="color: #4a5080"
+          >Locked Accounts</span
+        >
+        <div
+          class="w-8 h-8 rounded-lg flex items-center justify-center"
+          style="background: #e0555518"
+        >
+          <svg
+            class="w-4 h-4"
+            style="color: #e05555"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+        </div>
+      </div>
+      <div class="text-3xl font-bold" style="color: #e05555">
+        {{ locked_accounts }}
+      </div>
+      <div class="text-xs mt-1" style="color: #4a5080">currently locked</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="flex items-center justify-between mb-3">
+        <span
+          class="text-xs font-medium uppercase tracking-widest"
+          style="color: #4a5080"
+          >New This Week</span
+        >
+        <div
+          class="w-8 h-8 rounded-lg flex items-center justify-center"
+          style="background: #f0a04a18"
+        >
+          <svg
+            class="w-4 h-4"
+            style="color: #f0a04a"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+            />
+          </svg>
+        </div>
+      </div>
+      <div class="text-3xl font-bold" style="color: #f0a04a">
+        {{ new_this_week }}
+      </div>
+      <div class="text-xs mt-1" style="color: #4a5080">joined last 7 days</div>
+    </div>
+  </div>
+
+  <!-- Recent users table -->
+  <div
+    class="rounded-2xl overflow-hidden"
+    style="background: #13151f; border: 1px solid #252838"
+  >
+    <div
+      class="flex items-center justify-between px-6 py-4"
+      style="border-bottom: 1px solid #252838"
+    >
+      <h2 class="text-sm font-semibold" style="color: #c8cae8">
+        Recent Registrations
+      </h2>
+      <a
+        href="{{ url_for('admin.users') }}"
+        class="text-xs font-medium transition-colors"
+        style="color: #a09bff"
+        >View all →</a
+      >
+    </div>
+
+    <table class="w-full">
+      <thead>
+        <tr style="border-bottom: 1px solid #252838">
+          <th
+            class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            User
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            Joined
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+            style="color: #4a5080"
+          >
+            Status
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in recent_users %}
+        <tr
+          class="table-row transition-colors"
+          style="border-bottom: 1px solid #1a1d2a"
+        >
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                style="background: #6c63ff22; color: #a09bff"
+              >
+                {{ user.email[0].upper() }}
+              </div>
+              <span class="text-sm" style="color: #c8cae8"
+                >{{ user.email }}</span
+              >
+            </div>
+          </td>
+          <td class="px-6 py-4 text-sm" style="color: #6b7299">
+            {{ user.created_at.strftime('%b %d, %Y') }}
+          </td>
+          <td class="px-6 py-4">
+            {% if user.is_locked() %}
+            <span class="badge" style="background: #e0555518; color: #e05555"
+              >Locked</span
+            >
+            {% else %}
+            <span class="badge" style="background: #63d4a018; color: #63d4a0"
+              >Active</span
+            >
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td
+            colspan="3"
+            class="px-6 py-12 text-center text-sm"
+            style="color: #4a5080"
+          >
+            No users registered yet.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

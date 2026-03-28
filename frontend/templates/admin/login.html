@@ -1,0 +1,140 @@
+<!-- frontend/templates/admin/login.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login — CipherNest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background: #0b0d14;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <div
+          class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4"
+          style="background: #6c63ff18; border: 1px solid #6c63ff33"
+        >
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <path
+              d="M16 3L24 7.5L24 18Q24 24 16 29Q8 24 8 18L8 7.5Z"
+              stroke="#a09bff"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            <line
+              x1="12"
+              y1="14"
+              x2="20"
+              y2="14"
+              stroke="#a09bff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <line
+              x1="12"
+              y1="18"
+              x2="20"
+              y2="18"
+              stroke="#a09bff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <line
+              x1="12"
+              y1="22"
+              x2="17"
+              y2="22"
+              stroke="#a09bff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <circle cx="16" cy="10" r="2.5" fill="#6c63ff" />
+          </svg>
+        </div>
+        <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+        <p class="text-sm mt-1" style="color: #4a5080">
+          CipherNest administration
+        </p>
+      </div>
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="mb-4 px-4 py-3 rounded-xl text-sm {% if category == 'error' %}bg-red-500/10 border border-red-500/30 text-red-400 {% else %}bg-blue-500/10 border border-blue-500/30 text-blue-400{% endif %}"
+      >
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <!-- Login card -->
+      <div
+        class="rounded-2xl p-7"
+        style="background: #13151f; border: 1px solid #252838"
+      >
+        <form method="POST" action="{{ url_for('admin.login') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          <div class="mb-5">
+            <label class="block text-xs font-medium mb-2" style="color: #9ba3c2"
+              >Admin email</label
+            >
+            <input
+              type="email"
+              name="email"
+              required
+              autofocus
+              class="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors"
+              style="
+                background: #0b0d14;
+                border: 1px solid #252838;
+                color: #c8cae8;
+              "
+              onfocus="this.style.borderColor = '#6c63ff'"
+              onblur="this.style.borderColor = '#252838'"
+            />
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-xs font-medium mb-2" style="color: #9ba3c2"
+              >Password</label
+            >
+            <input
+              type="password"
+              name="password"
+              required
+              class="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors"
+              style="
+                background: #0b0d14;
+                border: 1px solid #252838;
+                color: #c8cae8;
+              "
+              onfocus="this.style.borderColor = '#6c63ff'"
+              onblur="this.style.borderColor = '#252838'"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full py-3 rounded-xl text-sm font-semibold text-white transition-colors"
+            style="background: #6c63ff"
+          >
+            Sign in to Admin Panel
+          </button>
+        </form>
+      </div>
+
+      <p class="text-center text-xs mt-6" style="color: #3a3d5c">
+        <a href="{{ url_for('auth.login') }}" style="color: #4a5080"
+          >← Back to user login</a
+        >
+      </p>
+    </div>
+  </body>
+</html>
