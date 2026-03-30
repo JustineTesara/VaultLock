@@ -47,6 +47,7 @@ def add_password():
     username = sanitize_text(request.form.get('username', ''), max_length=200)
     password = request.form.get('password', '')
     notes    = sanitize_text(request.form.get('notes', ''), max_length=500) 
+    category = request.form.get('category', 'Other')
 
     # Validate required fields
     if not website or not username or not password:
@@ -60,7 +61,8 @@ def add_password():
         website_name=website,
         username=username,
         encrypted_password=encrypted,
-        notes=notes or None
+        notes=notes or None,
+        category=category,
     )
 
     db.session.add(entry)
@@ -73,6 +75,7 @@ def add_password():
             'website_name': entry.website_name,
             'username':     entry.username,
             'notes':        entry.notes or '',
+            'category':     entry.category,
             'created_at':   entry.created_at.strftime('%Y-%m-%d %H:%M'),
         }
     })
@@ -96,6 +99,8 @@ def edit_password(entry_id):
     username = sanitize_text(request.form.get('username', ''), max_length=200)
     password = request.form.get('password', '')
     notes    = sanitize_text(request.form.get('notes', ''), max_length=500)
+    category = request.form.get('category', 'Other')
+
 
     if not website or not username:
         return jsonify({'error': 'Website and username are required.'}), 400
@@ -103,6 +108,7 @@ def edit_password(entry_id):
     entry.website_name = website
     entry.username     = username
     entry.notes        = notes or None
+    entry.category = category
 
     # Only re-encrypt if the user typed a new password
     # If the field is blank we keep the existing encrypted value

@@ -68,7 +68,9 @@
     <!-- Flash messages — shown at the top of every page -->
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
     messages %}
-    <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 w-80">
+    <div
+      class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-80"
+    >
       {% for category, message in messages %}
       <div
         class="flash-msg px-4 py-3 rounded-lg text-sm font-medium shadow-lg {% if category == 'error' %} bg-red-500/20 border border-red-500/50 text-red-300 {% elif category == 'success' %}bg-green-500/20 border border-green-500/50 text-green-300 {% else %} bg-blue-500/20 border border-blue-500/50 text-blue-300 {% endif %}"
@@ -77,6 +79,15 @@
       </div>
       {% endfor %}
     </div>
+    <script>
+      setTimeout(() => {
+        document.querySelectorAll(".flash-msg").forEach((el) => {
+          el.style.transition = "opacity .5s";
+          el.style.opacity = "0";
+          setTimeout(() => el.remove(), 500);
+        });
+      }, 3000);
+    </script>
     {% endif %} {% endwith %} {% block content %}{% endblock %}
   </body>
 </html>

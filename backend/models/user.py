@@ -28,6 +28,10 @@ class User(UserMixin, db.Model):
     failed_login_attempts = db.Column(db.Integer, default=0)
     locked_until = db.Column(db.DateTime, nullable=True)
 
+
+    reset_token         = db.Column(db.String(100), nullable=True)
+    reset_token_expiry  = db.Column(db.DateTime,    nullable=True)
+    
     # One user has many stored passwords (one-to-many relationship)
     # cascade="all, delete-orphan" means: delete all passwords when a user is deleted
     passwords = db.relationship(

@@ -236,7 +236,7 @@ block content %}
           class="rounded-xl p-4"
           style="background: #1a1d27; border: 1px solid #1e2235"
         >
-          <div class="text-2xl font-bold" style="color: #a09bff">
+          <div class="text-2xl font-bold stat-num" style="color: #a09bff">
             {{ passwords|length }}
           </div>
           <div class="text-xs mt-1" style="color: #4a5080">Total Saved</div>
@@ -245,7 +245,7 @@ block content %}
           class="rounded-xl p-4"
           style="background: #1a1d27; border: 1px solid #1e2235"
         >
-          <div class="text-2xl font-bold" style="color: #63d4a0">
+          <div class="text-2xl font-bold stat-num" style="color: #63d4a0">
             {{ passwords|length }}
           </div>
           <div class="text-xs mt-1" style="color: #4a5080">Encrypted</div>
@@ -262,21 +262,71 @@ block content %}
       </div>
 
       <!-- Section header -->
-      <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
         <h2
           class="text-xs font-semibold uppercase tracking-widest"
           style="color: #6b7299"
         >
           Vault Entries
         </h2>
-        <span class="text-xs" style="color: #4a5080" id="entryCount">
-          {{ passwords|length }} item{{ 's' if passwords|length != 1 else '' }}
-        </span>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs" style="color: #4a5080" id="entryCount">
+            {{ passwords|length }} item{{ 's' if passwords|length != 1 else ''
+            }}
+          </span>
+          <div class="flex gap-1.5">
+            {% for cat, color in [
+            ('All','#6b7299'),('Social','#a09bff'),('Work','#63d4a0'),
+            ('Banking','#f0a04a'),('Shopping','#e05555'),('Other','#6b7299') ]
+            %}
+            <button
+              onclick="filterByCategory('{{ cat }}')"
+              id="cat-{{ cat }}"
+              class="category-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium"
+              style="background:#21253a; color:{{ color }}; border:1px solid #2a2d42;"
+            >
+              {{ cat }}
+            </button>
+            {% endfor %}
+          </div>
+
+          <div
+            class="flex gap-1.5 ml-2"
+            style="border-left: 1px solid #2a2d42; padding-left: 8px"
+          >
+            <button
+              onclick="sortVault('newest')"
+              id="sort-newest"
+              class="sort-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
+              style="
+                background: #1a1d27;
+                color: #a09bff;
+                border: 1px solid #2a2d42;
+              "
+            >
+              ↓ Newest
+            </button>
+            <button
+              onclick="sortVault('oldest')"
+              id="sort-oldest"
+              class="sort-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
+              style="
+                background: #21253a;
+                color: #6b7299;
+                border: 1px solid #2a2d42;
+              "
+            >
+              ↑ Oldest
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Empty state -->
+      <!-- Empty state — only when no passwords -->
       {% if not passwords %}
-      <div class="flex flex-col items-center justify-center py-20 text-center">
+      <div
+        class="vault-empty-state flex flex-col items-center justify-center py-20 text-center"
+      >
         <div
           class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
           style="background: #1a1d27; border: 1px solid #1e2235"
@@ -320,41 +370,65 @@ block content %}
       <div id="vaultList" class="space-y-2">
         {% for entry in passwords %}
         <div
-          class="vault-row rounded-xl px-4 py-3 flex items-center gap-4 transition-colors"
+          class="vault-row rounded-xl px-4 py-3 flex items-center gap-4"
           style="background: #1a1d27; border: 1px solid #1e2235"
           data-website="{{ entry.website_name|lower }}"
           data-username="{{ entry.username|lower }}"
+          data-category="{{ entry.category or 'Other' }}"
+          data-id="{{ entry.id }}"
+          data-created="{{ entry.created_at.isoformat() }}"
         >
-          <!-- Icon -->
           <div
-            class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-base"
-            style="background: #21253a"
+            class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-bold"
+            style="background: #21253a; color: #a09bff"
           >
             {{ entry.website_name[0].upper() }}
           </div>
 
-          <!-- Info -->
           <div class="flex-1 min-w-0">
             <div class="text-sm font-semibold truncate" style="color: #c8cae8">
               {{ entry.website_name }}
             </div>
-            <div class="text-xs truncate mt-0.5" style="color: #4a5080">
-              {{ entry.username }}
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-xs truncate" style="color: #4a5080"
+                >{{ entry.username }}</span
+              >
+              <span
+                class="text-xs px-1.5 py-0.5 rounded"
+                style="
+                {% if entry.category == 'Social' %}background:#6c63ff18;color:#a09bff;
+                {% elif entry.category == 'Work' %}background:#63d4a018;color:#63d4a0;
+                {% elif entry.category == 'Banking' %}background:#f0a04a18;color:#f0a04a;
+                {% elif entry.category == 'Shopping' %}background:#e0555518;color:#e05555;
+                {% else %}background:#21253a;color:#6b7299;{% endif %}"
+              >
+                {{ entry.category or 'Other' }}
+              </span>
             </div>
           </div>
 
-          <!-- Masked password -->
-          <div class="text-xs font-mono tracking-widest" style="color: #3a3d5c">
+          <div
+            class="text-xs flex-shrink-0 hidden sm:block"
+            style="color: #3a3d5c; min-width: 72px; text-align: right"
+          >
+            <span
+              class="entry-date"
+              title="{{ entry.created_at.strftime('%B %d, %Y') }}"
+            ></span>
+          </div>
+
+          <div
+            class="text-xs font-mono tracking-widest flex-shrink-0"
+            style="color: #3a3d5c"
+          >
             ••••••••
           </div>
 
-          <!-- Action buttons -->
           <div class="flex items-center gap-2 flex-shrink-0">
-            <!-- Copy password -->
             <button
               onclick="copyPassword({{ entry.id }}, this)"
-              title="Copy password"
-              class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              title="Copy"
+              class="w-8 h-8 rounded-lg flex items-center justify-center"
               style="background: #21253a; border: 1px solid #2a2d42"
             >
               <svg
@@ -372,12 +446,10 @@ block content %}
                 />
               </svg>
             </button>
-
-            <!-- Edit (placeholder for Step 7B) -->
             <button
-              onclick="openEditModal({{ entry.id }}, '{{ entry.website_name|e }}', '{{ entry.username|e }}', '{{ entry.notes|e if entry.notes else '' }}')"
+              onclick="openEditModal({{ entry.id }},'{{ entry.website_name|e }}','{{ entry.username|e }}','{{ entry.notes|e if entry.notes else '' }}','{{ entry.category or 'Other' }}')"
               title="Edit"
-              class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              class="w-8 h-8 rounded-lg flex items-center justify-center"
               style="background: #21253a; border: 1px solid #2a2d42"
             >
               <svg
@@ -395,12 +467,10 @@ block content %}
                 />
               </svg>
             </button>
-
-            <!-- Delete (placeholder for Step 7B) -->
             <button
-              onclick="confirmDelete({{ entry.id }}, '{{ entry.website_name|e }}')"
+              onclick="confirmDelete({{ entry.id }},'{{ entry.website_name|e }}')"
               title="Delete"
-              class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              class="w-8 h-8 rounded-lg flex items-center justify-center"
               style="background: #21253a; border: 1px solid #2a2d42"
             >
               <svg
@@ -567,7 +637,24 @@ block content %}
           onblur="this.style.borderColor = '#2a2d42'"
         ></textarea>
       </div>
-
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2">
+          Category
+        </label>
+        <select
+          name="category"
+          class="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-colors"
+          style="background: #0f1117; border: 1px solid #2a2d42; color: #c8cae8"
+          onfocus="this.style.borderColor = '#6c63ff'"
+          onblur="this.style.borderColor = '#2a2d42'"
+        >
+          <option value="Social">💬 Social</option>
+          <option value="Work">💼 Work</option>
+          <option value="Banking">🏦 Banking</option>
+          <option value="Shopping">🛒 Shopping</option>
+          <option value="Other" selected>📁 Other</option>
+        </select>
+      </div>
       <div class="flex gap-3 pt-1">
         <button
           type="button"
@@ -714,6 +801,46 @@ block content %}
           onfocus="this.style.borderColor = '#6c63ff'"
           onblur="this.style.borderColor = '#2a2d42'"
         ></textarea>
+      </div>
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color: #9ba3c2">
+          Category
+        </label>
+        <select
+          name="category"
+          id="editCategory"
+          class="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-colors"
+          style="background: #0f1117; border: 1px solid #2a2d42; color: #c8cae8"
+          onfocus="this.style.borderColor = '#6c63ff'"
+          onblur="this.style.borderColor = '#2a2d42'"
+        >
+          <option value="Social">💬 Social</option>
+          <option value="Work">💼 Work</option>
+          <option value="Banking">🏦 Banking</option>
+          <option value="Shopping">🛒 Shopping</option>
+          <option value="Other">📁 Other</option>
+        </select>
+      </div>
+      <div
+        class="flex gap-1.5 ml-2"
+        style="border-left: 1px solid #2a2d42; padding-left: 8px"
+      >
+        <button
+          onclick="sortVault('newest')"
+          id="sort-newest"
+          class="sort-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
+          style="background: #1a1d27; color: #a09bff; border: 1px solid #2a2d42"
+        >
+          ↓ Newest
+        </button>
+        <button
+          onclick="sortVault('oldest')"
+          id="sort-oldest"
+          class="sort-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
+          style="background: #21253a; color: #6b7299; border: 1px solid #2a2d42"
+        >
+          ↑ Oldest
+        </button>
       </div>
 
       <div class="flex gap-3 pt-1">
@@ -1028,9 +1155,15 @@ block content %}
     rows.forEach((row) => {
       const website = row.dataset.website || "";
       const username = row.dataset.username || "";
-      const match = website.includes(q) || username.includes(q);
-      row.style.display = match ? "" : "none";
-      if (match) visible++;
+      const rowCat = row.dataset.category || "Other";
+
+      const matchesSearch = website.includes(q) || username.includes(q);
+      const matchesCategory =
+        activeCategory === "All" || rowCat === activeCategory;
+      const show = matchesSearch && matchesCategory;
+
+      row.style.display = show ? "" : "none";
+      if (show) visible++;
     });
 
     document.getElementById("entryCount").textContent =
@@ -1202,12 +1335,13 @@ block content %}
 
   // ─── EDIT MODAL ───────────────────────────────────────────
 
-  function openEditModal(id, website, username, notes) {
+  function openEditModal(id, website, username, notes, category) {
     document.getElementById("editEntryId").value = id;
     document.getElementById("editWebsite").value = website;
     document.getElementById("editUsername").value = username;
     document.getElementById("editNotes").value = notes;
     document.getElementById("editPassword").value = "";
+    document.getElementById("editCategory").value = category || "Other";
     document.getElementById("editStrengthBar").style.width = "0";
     document.getElementById("editStrengthLabel").textContent = "";
     openModal("editModal");
@@ -1290,6 +1424,37 @@ block content %}
   function onLengthChange(val) {
     document.getElementById("genLengthDisplay").textContent = val;
     generatePassword();
+  }
+
+  // ─── CATEGORY FILTER ─────────────────────────────────────
+  let activeCategory = "All";
+
+  function filterByCategory(category) {
+    activeCategory = category;
+
+    // Update button styles
+    document.querySelectorAll(".category-filter-btn").forEach((btn) => {
+      btn.style.background = "#21253a";
+      btn.style.opacity = "0.6";
+    });
+    const activeBtn = document.getElementById(`cat-${category}`);
+    if (activeBtn) {
+      activeBtn.style.background = "#2a2d42";
+      activeBtn.style.opacity = "1";
+    }
+
+    // Filter rows
+    const rows = document.querySelectorAll(".vault-row");
+    let visible = 0;
+    rows.forEach((row) => {
+      const rowCat = row.dataset.category || "Other";
+      const matches = category === "All" || rowCat === category;
+      row.style.display = matches ? "" : "none";
+      if (matches) visible++;
+    });
+
+    document.getElementById("entryCount").textContent =
+      visible + " item" + (visible !== 1 ? "s" : "");
   }
 
   function generatePassword() {
@@ -1452,6 +1617,8 @@ block content %}
     div.dataset.id = entry.id;
     div.dataset.website = entry.website_name.toLowerCase();
     div.dataset.username = entry.username.toLowerCase();
+    div.dataset.category = entry.category || "Other";
+    div.dataset.created = entry.created_at || new Date().toISOString();
 
     div.innerHTML = `
     <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-base font-semibold"
@@ -1511,14 +1678,93 @@ block content %}
     if (row) row.remove();
   }
 
+  // Replace the existing updateCount() function
   function updateCount(delta) {
+    // Update the entry count label
     const el = document.getElementById("entryCount");
-    const cur = parseInt(el.textContent) + delta;
+    const cur = Math.max(0, parseInt(el.textContent) + delta);
     el.textContent = cur + " item" + (cur !== 1 ? "s" : "");
 
-    // Also update the stat card
-    const statNum = document.querySelector(".stat-num");
-    if (statNum) statNum.textContent = cur;
+    // Update ALL stat cards (Total Saved + Encrypted both show the count)
+    const statNums = document.querySelectorAll(".stat-num");
+    statNums.forEach((stat) => {
+      const updated = Math.max(0, parseInt(stat.textContent) + delta);
+      stat.textContent = updated;
+    });
+
+    // Hide empty state if we now have entries
+    if (delta > 0) {
+      const emptyState = document.querySelector(".vault-empty-state");
+      if (emptyState) emptyState.style.display = "none";
+    }
+
+    // Show empty state if count reaches 0
+    if (cur === 0) {
+      const emptyState = document.querySelector(".vault-empty-state");
+      if (emptyState) emptyState.style.display = "flex";
+    }
   }
+
+  // ─── RELATIVE TIME ────────────────────────────────────────
+  function timeAgo(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return "just now";
+    if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
+    if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
+    if (seconds < 604800) return Math.floor(seconds / 86400) + "d ago";
+
+    // Older than a week — show the actual date
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  // Run on page load — fill all date spans
+  function initDates() {
+    document.querySelectorAll(".vault-row").forEach((row) => {
+      const created = row.dataset.created;
+      const span = row.querySelector(".entry-date");
+      if (created && span) {
+        span.textContent = timeAgo(created);
+      }
+    });
+  }
+
+  // ─── SORT ─────────────────────────────────────────────────
+  function sortVault(order) {
+    // Update button styles
+    document.querySelectorAll(".sort-btn").forEach((btn) => {
+      btn.style.background = "#21253a";
+      btn.style.color = "#6b7299";
+    });
+    const activeBtn = document.getElementById(`sort-${order}`);
+    if (activeBtn) {
+      activeBtn.style.background = "#1a1d27";
+      activeBtn.style.color = "#a09bff";
+    }
+
+    const list = document.getElementById("vaultList");
+    const rows = Array.from(list.querySelectorAll(".vault-row"));
+
+    rows.sort((a, b) => {
+      const dateA = new Date(a.dataset.created || 0);
+      const dateB = new Date(b.dataset.created || 0);
+      return order === "newest" ? dateB - dateA : dateA - dateB;
+    });
+
+    // Re-append in sorted order
+    rows.forEach((row) => list.appendChild(row));
+  }
+
+  // Call initDates when the page loads
+  document.addEventListener("DOMContentLoaded", () => {
+    initDates();
+    sortVault("newest"); // default sort
+  });
 </script>
 {% endblock %}

@@ -127,6 +127,18 @@ block content %}
             </button>
           </div>
         </div>
+        <div class="mb-6">
+  <div class="flex items-center justify-between mb-2">
+    <label class="block text-sm font-medium" style="color:#9ba3c2;">
+      Master password
+    </label>
+    <!-- ADD THIS LINK -->
+    <a href="{{ url_for('reset.forgot_password') }}"
+       class="text-xs transition-colors"
+       style="color:#a09bff;">
+      Forgot password?
+    </a>
+  </div>
 
         <!-- Submit -->
         <button

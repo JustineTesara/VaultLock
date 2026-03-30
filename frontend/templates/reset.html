@@ -1,0 +1,124 @@
+<!-- frontend/templates/reset.html -->
+{% extends "base.html" %} {% block title %}Reset Password — CipherNest{%
+endblock %} {% block content %}
+<div class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <div
+        class="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
+        style="background: #6c63ff18; border: 1px solid #6c63ff33"
+      >
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <path
+            d="M16 3L24 7.5L24 18Q24 24 16 29Q8 24 8 18L8 7.5Z"
+            stroke="#a09bff"
+            stroke-width="2"
+            stroke-linejoin="round"
+          />
+          <circle cx="16" cy="10" r="2.5" fill="#6c63ff" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-white">Set new password</h1>
+      <p class="text-gray-400 text-sm mt-1">Choose a strong master password</p>
+    </div>
+
+    <div
+      class="rounded-2xl p-8 shadow-2xl"
+      style="background: #1a1d27; border: 1px solid #2e3350"
+    >
+      <form
+        method="POST"
+        action="{{ url_for('reset.reset_password', token=token) }}"
+      >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <div class="mb-5">
+          <label class="block text-sm font-medium mb-2" style="color: #9ba3c2">
+            New master password
+          </label>
+          <input
+            type="password"
+            name="password"
+            id="newPassword"
+            required
+            oninput="checkStrength(this.value)"
+            class="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors"
+            style="
+              background: #0f1117;
+              border: 1px solid #2a2d42;
+              color: #c8cae8;
+            "
+            placeholder="Min. 8 characters"
+            onfocus="this.style.borderColor = '#6c63ff'"
+            onblur="this.style.borderColor = '#2a2d42'"
+          />
+          <div
+            class="mt-2 h-1.5 rounded-full overflow-hidden"
+            style="background: #0f1117"
+          >
+            <div
+              id="strengthBar"
+              class="h-full rounded-full transition-all duration-300 w-0"
+            ></div>
+          </div>
+          <p id="strengthLabel" class="text-xs mt-1" style="color: #4a5080"></p>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2" style="color: #9ba3c2">
+            Confirm new password
+          </label>
+          <input
+            type="password"
+            name="confirm_password"
+            required
+            class="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors"
+            style="
+              background: #0f1117;
+              border: 1px solid #2a2d42;
+              color: #c8cae8;
+            "
+            placeholder="Repeat your password"
+            onfocus="this.style.borderColor = '#6c63ff'"
+            onblur="this.style.borderColor = '#2a2d42'"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-3 rounded-xl text-sm font-semibold text-white"
+          style="background: #6c63ff"
+        >
+          Reset Master Password
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function checkStrength(password) {
+    const bar = document.getElementById("strengthBar");
+    const label = document.getElementById("strengthLabel");
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    const levels = [
+      { w: "0%", color: "", text: "" },
+      { w: "20%", color: "#e05555", text: "Very weak" },
+      { w: "40%", color: "#f0a04a", text: "Weak" },
+      { w: "60%", color: "#f0d060", text: "Fair" },
+      { w: "80%", color: "#6b9eff", text: "Strong" },
+      { w: "100%", color: "#63d4a0", text: "Very strong" },
+    ];
+    const lvl = levels[score] || levels[0];
+    bar.style.width = lvl.w;
+    bar.style.background = lvl.color;
+    label.textContent = lvl.text;
+    label.style.color = lvl.color;
+  }
+</script>
+{% endblock %}

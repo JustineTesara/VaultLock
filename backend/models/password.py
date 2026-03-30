@@ -30,6 +30,8 @@ class StoredPassword(db.Model):
     encrypted_password = db.Column(db.Text, nullable=False)
     
     notes = db.Column(db.Text, nullable=True)
+    category = db.Column(db.String(50), nullable=True, default='Other')
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

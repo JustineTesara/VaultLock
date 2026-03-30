@@ -1,7 +1,7 @@
 # backend/app.py
 
 from flask import Flask
-from extensions import db, bcrypt, login_manager, csrf, limiter
+from extensions import db, bcrypt, login_manager, csrf, limiter, mail
 from config import Config
 from utils.security import apply_security_headers
 
@@ -17,6 +17,7 @@ def create_app():
 
     # Attach all extensions to this app instance
     db.init_app(app)
+    mail.init_app(app)
     bcrypt.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
@@ -31,6 +32,7 @@ def create_app():
     with app.app_context():
         from models.user import User
         from models.password import StoredPassword
+        
 
         @login_manager.user_loader
         def load_user(user_id):
@@ -41,10 +43,13 @@ def create_app():
         from routes.auth import auth_bp
         from routes.vault import vault_bp
         from routes.admin import admin_bp 
+        from routes.reset import reset_bp
         
         app.register_blueprint(auth_bp)
         app.register_blueprint(vault_bp)
         app.register_blueprint(admin_bp) 
+        app.register_blueprint(reset_bp)
+
 
     return app
 
